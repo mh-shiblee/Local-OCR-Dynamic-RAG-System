@@ -92,11 +92,88 @@ Then open `http://localhost:8501` in your browser.
 
 ---
 
-## 🔗 Links
+USER UPLOADS A FILE
+        │
+        ▼
+┌─────────────────────┐
+│   Streamlit UI      │  User picks PDF + doc_type + date
+│   frontend/app.py   │  Clicks "Upload & Process"
+└────────┬────────────┘
+         │ HTTP POST /upload
+         ▼
+┌─────────────────────┐
+│   FastAPI           │  Receives file, saves to uploads/
+│   backend/main.py   │  
+└────────┬────────────┘
+         │ calls run_ocr()
+         ▼
+┌─────────────────────┐
+│   Surya OCR         │  Converts PDF pages → images
+│   backend/ocr.py    │  Reads pixels → extracts text
+└────────┬────────────┘
+         │ returns raw text string
+         ▼
+┌─────────────────────┐
+│   Pipeline          │  1. Detects language (Bangla/English/Mixed)
+│   backend/          │  2. Splits text into 500-word chunks
+│   pipeline.py       │  3. Embeds each chunk into a vector (384 numbers)
+│                     │  4. Stores vectors + metadata in ChromaDB
+└────────┬────────────┘
+         │ returns summary
+         ▼
+┌─────────────────────┐
+│   ChromaDB          │  Persists everything to chroma_db/ folder
+│   chroma_db/        │  Each chunk stored with:
+│                     │  - vector embedding
+│                     │  - original text
+│                     │  - filename, language, doc_type, doc_date
+└─────────────────────┘
 
-- **Demo Video:** `YOUR_YOUTUBE_LINK_HERE`
 
----
+USER ASKS A QUESTION
+        │
+        ▼
+┌─────────────────────┐
+│   Streamlit UI      │  User types question
+│   frontend/app.py   │  Optionally sets filters (language, type, date)
+│                     │  Clicks "Search"
+└────────┬────────────┘
+         │ HTTP POST /query
+         ▼
+┌─────────────────────┐
+│   FastAPI           │  Receives query + filters
+│   backend/main.py   │  Passes to rag_query()
+└────────┬────────────┘
+         │ calls retrieve_chunks()
+         ▼
+┌─────────────────────┐
+│   RAG - Retrieval   │  1. Embeds the user query into a vector
+│   backend/rag.py    │  2. Builds metadata filter if user set any
+│                     │  3. ChromaDB finds top-K most similar chunks
+│                     │     (compares query vector vs stored vectors)
+│                     │  4. Returns most relevant chunks + scores
+└────────┬────────────┘
+         │ chunks passed to build_prompt()
+         ▼
+┌─────────────────────┐
+│   RAG - Generation  │  Builds prompt:
+│   backend/rag.py    │  "Answer based on this context: [chunks]
+│                     │   Question: [user query]"
+└────────┬────────────┘
+         │ sends prompt to Ollama
+         ▼
+┌─────────────────────┐
+│   Ollama (llama3.2) │  Local LLM reads the context + question
+│   runs locally      │  Generates a grounded answer
+│   port 11434        │  Never makes anything up beyond the context
+└────────┬────────────┘
+         │ returns answer text
+         ▼
+┌─────────────────────┐
+│   Streamlit UI      │  Displays answer
+│   frontend/app.py   │  Shows source documents + relevance scores
+└─────────────────────┘
+
 
 ## 🛠️ Tech Stack
 
