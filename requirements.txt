@@ -1,0 +1,29 @@
+# API & Server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# OCR
+surya-ocr==0.6.0
+
+# PDF processing
+pymupdf
+
+# ML & Embeddings
+sentence-transformers
+transformers==4.44.0
+
+# Vector Database
+chromadb
+
+# Language Detection
+langdetect
+
+# Frontend
+streamlit
+
+# HTTP client (for Ollama calls)
+requests
+
+# Image processing
+pillow==10.4.0

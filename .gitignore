@@ -1,0 +1,52 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# ChromaDB data
+backend/chroma_db/
+
+# Uploaded files
+backend/uploads/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# HuggingFace model cache
+.cache/
+
+# Surya / ML model files
+*.gguf
+*.bin
+*.pt
+*.pth
+*.safetensors
+
+# llama.cpp binary
+backend/llama-server.exe
+*.exe
+
+# Test files
+backend/test_ocr.py
+backend/test_pipeline.py
+backend/test_rag.py
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
